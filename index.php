@@ -1,27 +1,16 @@
 <?php
-
-session_start();
- 
-// Check if the user is logged in, if not then redirect him to login page
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
-    header("location: login.php");
-    exit;
-}
-
     $errors = "";
 //connect to database
-    $db = mysqli_connect('localhost', 'sharfaa', 'sharfaa', 'reg');
-    require_once "config.php";
+    $db = mysqli_connect('localhost', 'root', '', 'todoapp');
 
     if(isset($_POST['submit'])){
         $due = $_POST['duedate'];
         $task = $_POST['task'];
-        $username = $_SESSION["username"];
         if(empty($task)){
             $errors = "You must input a task.";
         }else{
-            mysqli_query($db, "INSERT INTO tasks (task, username, duedate) VALUES ('$task', '$username', '$due')");
-            header('location: welcome.php');
+            mysqli_query($db, "INSERT INTO tasks (task, duedate) VALUES ('$task', '$due')");
+            header('location: index.php');
         }
     }
 
@@ -39,31 +28,24 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     if(isset($_GET['del_task'])){
         $id = $_GET['del_task'];
         mysqli_query($db, "DELETE FROM tasks WHERE id=$id");
-        header('location: welcome.php');
+        header('location: index.php');
     }
 
     $tasks = mysqli_query($db, "SELECT * FROM tasks ORDER BY task");
     
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
     <title>To-Do List</title>
-    <link rel="stylesheet" type="text/css" href="css/stylist.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </head>
 <body>
-    <div class="page-header">
-        <h1>Hi, <b><?php echo htmlspecialchars($_SESSION["username"]); ?></b>. Welcome to your To-Do List.</h1>
-    </div>
-    <p>
-        <a href="reset-password.php" class="btn btn-warning">Reset Your Password</a>
-        <a href="logout.php" class="btn btn-danger">Sign Out of Your Account</a>
-    </p>
     <div class="heading">
     <h2>My To-Do List:</h2>
     </div>
@@ -96,7 +78,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                     <td class="task"><?php echo $row['task'];?></td>
                     <td class="due"><?php echo $row['duedate'];?></td>
                     <td class="delete">
-                        <a href="welcome.php?del_task= <?php echo $row['id'];?>">x</a>
+                        <a href="index.php?del_task= <?php echo $row['id'];?>">x</a>
                     </td>
                 </tr>
 
